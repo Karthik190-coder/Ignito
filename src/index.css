@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* Add this block to enable buttery smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide the default mouse pointer everywhere */
+body {
+  cursor: none;
+  background-color: black; 
+}
+
+/* Hide pointer on interactive elements too */
+a, button {
+  cursor: none;
+}
