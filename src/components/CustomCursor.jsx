@@ -6,20 +6,21 @@ export default function CustomCursor() {
   const rayRef = useRef(null);
 
   const [isIdle, setIsIdle] = useState(true);
-  const [hasMouse, setHasMouse] = useState(false); // Default to false to prevent mobile flashes
+  
+  // MOBILE SAFEGUARD: Re-added to prevent the black screen crash on phones!
+  const [hasMouse, setHasMouse] = useState(false); 
 
   const pos = useRef({ x: -100, y: -100 });
   const mouse = useRef({ x: -100, y: -100 });
 
   useEffect(() => {
-    // 1. Core Mobile Protection
-const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    // Check for a real mouse pointer
+    const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
     setHasMouse(mediaQuery.matches);
-
-    // If it's a touchscreen (phone/tablet), exit completely before binding loop engines
     if (!mediaQuery.matches) return;
 
     let timeout;
+    let loopId;
 
     const handleMouseMove = (e) => {
       mouse.current = { x: e.clientX, y: e.clientY };
@@ -30,17 +31,15 @@ const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
     };
 
     const animate = () => {
-      // Smooth interpolation physics
-      pos.current.x += (mouse.current.x - pos.current.x) * 0.4;
-      pos.current.y += (mouse.current.y - pos.current.y) * 0.4;
+      // Changed from 0.4 to 0.25 for incredibly fluid, zero-G movement
+      pos.current.x += (mouse.current.x - pos.current.x) * 0.25;
+      pos.current.y += (mouse.current.y - pos.current.y) * 0.25;
 
       const { x, y } = pos.current;
 
-      // Move Wrappers safely
       if (starWrapperRef.current) starWrapperRef.current.style.transform = `translate(${x}px, ${y}px)`;
       if (glowWrapperRef.current) glowWrapperRef.current.style.transform = `translate(${x}px, ${y}px)`;
 
-      // Dynamic Ray Vector Tracking
       const dx = mouse.current.x - pos.current.x;
       const dy = mouse.current.y - pos.current.y;
       
@@ -49,15 +48,15 @@ const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
 
       if (rayRef.current) {
         rayRef.current.style.width = `${length}px`;
-        rayRef.current.style.transform = `translate(${x}px, ${y - 4}px) rotate(${angle + 180}deg)`;
+        // Centered perfectly: Since the ray is now h-1 (4px), we offset by 2px instead of 4px
+        rayRef.current.style.transform = `translate(${x}px, ${y - 2}px) rotate(${angle + 180}deg)`;
       }
 
       loopId = requestAnimationFrame(animate);
     };
 
-    // Bind event listeners and jump-start the loop together
     window.addEventListener('mousemove', handleMouseMove);
-    let loopId = requestAnimationFrame(animate);
+    loopId = requestAnimationFrame(animate);
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
@@ -66,20 +65,20 @@ const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
     };
   }, []);
 
-  // Structural Safeguard
   if (!hasMouse) return null;
 
   return (
     <>
-      {/* LAYER 1: The Blazing Ray of Light */}
+      {/* LAYER 1: The Blazing Ray of Light (THIN AND FLUID) */}
       <div
         ref={rayRef}
-        className={`fixed top-0 left-0 h-2 pointer-events-none z-[98] mix-blend-screen transition-opacity duration-200 ease-out
+        // Changed to h-1 (4px thick) for a sleek, sharp aesthetic
+        className={`fixed top-0 left-0 h-1 pointer-events-none z-[98] mix-blend-screen transition-opacity duration-200 ease-out
           ${isIdle ? 'opacity-0' : 'opacity-100'}
         `}
         style={{
           background: 'linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(253, 224, 71, 1) 10%, rgba(249, 115, 22, 0.8) 50%, transparent 100%)',
-          filter: 'blur(2px)',
+          filter: 'blur(1px)', // Tightened blur for sharpness
           transformOrigin: 'left center',
           willChange: 'transform, width'
         }}

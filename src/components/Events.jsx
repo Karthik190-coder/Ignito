@@ -1,7 +1,6 @@
 import React from 'react';
 import Reveal from './Reveal';
-import TiltCard from './TiltCard'; // <-- Fixed the import path!
-
+import TiltCard from './TiltCard'; 
 const eventData = [
   {
     id: 1,
@@ -27,7 +26,14 @@ const eventData = [
 ];
 
 export default function Events() {
+  const scrollToEvents = () => {
+    const eventsSection = document.getElementById('events');
+    if (eventsSection) {
+      eventsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   return (
+    
     <section id="events" className="w-full py-32 px-6 relative z-10">
       <div className="max-w-7xl mx-auto">
         
