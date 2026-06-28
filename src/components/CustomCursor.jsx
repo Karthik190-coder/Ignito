@@ -13,7 +13,7 @@ export default function CustomCursor() {
 
   useEffect(() => {
     // 1. Core Mobile Protection
-    const mediaQuery = window.matchMedia('(pointer: fine)');
+const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
     setHasMouse(mediaQuery.matches);
 
     // If it's a touchscreen (phone/tablet), exit completely before binding loop engines

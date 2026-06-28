@@ -7,16 +7,12 @@ export default function Reveal({ children, delay = 0 }) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // We removed the 'unobserve' lock. 
-        // Now it smoothly toggles true when it enters, and false when it leaves.
         requestAnimationFrame(() => {
           setIsVisible(entry.isIntersecting);
         });
       },
       {
         threshold: 0.1, 
-        // We use a slight negative margin on the bottom so it begins de-loading 
-        // right before it completely falls off the screen
         rootMargin: '0px 0px -50px 0px' 
       }
     );
@@ -37,17 +33,16 @@ export default function Reveal({ children, delay = 0 }) {
       ref={ref}
       className="w-full"
       style={{
-        // Using the same premium physics curve for both entering and exiting
+        // 1. Removed the expensive 'filter' physics
         transition: `
           opacity 1s cubic-bezier(0.16, 1, 0.3, 1), 
-          transform 1s cubic-bezier(0.16, 1, 0.3, 1), 
-          filter 1s cubic-bezier(0.16, 1, 0.3, 1)
+          transform 1s cubic-bezier(0.16, 1, 0.3, 1)
         `,
-        transitionDelay: `${isVisible ? delay : 0}ms`, // Only delay on the way in, not the way out
-        willChange: 'opacity, transform, filter',
+        transitionDelay: `${isVisible ? delay : 0}ms`,
+        // 2. Removed 'filter' from hardware acceleration to save VRAM
+        willChange: 'opacity, transform',
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(50px) scale(0.95)',
-        filter: isVisible ? 'blur(0px)' : 'blur(12px)',
       }}
     >
       {children}
