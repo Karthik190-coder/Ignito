@@ -1,17 +1,13 @@
 @import "tailwindcss";
 
-/* Add this block to enable buttery smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* 1. Only apply cursor: none to devices with a real mouse */
+@media (pointer: fine) {
+  body, a, button {
+    cursor: none;
+  }
 }
 
-/* Hide the default mouse pointer everywhere */
+/* 2. Global background rules (keep these outside the media query so they apply to everyone) */
 body {
-  cursor: none;
-  background-color: black; 
-}
-
-/* Hide pointer on interactive elements too */
-a, button {
-  cursor: none;
+  background-color: black;
 }

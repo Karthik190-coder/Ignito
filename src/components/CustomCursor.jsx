@@ -11,6 +11,28 @@ export default function CustomCursor() {
   
   const pos = useRef({ x: -100, y: -100 });
   const mouse = useRef({ x: -100, y: -100 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  // We add a state to check if the device actually has a mouse
+  const [hasMouse, setHasMouse] = useState(true); 
+
+  useEffect(() => {
+    // This checks if the user's primary input is a precise pointer (like a mouse/trackpad)
+    const mediaQuery = window.matchMedia('(pointer: fine)');
+    setHasMouse(mediaQuery.matches);
+
+    // If no mouse is detected, don't bother setting up the event listeners
+    if (!mediaQuery.matches) return;
+
+    const handleMouseMove = (e) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // If it's a touch screen (phone/tablet), render absolutely nothing.
+  if (!hasMouse) return null;
 
   useEffect(() => {
     let timeout;

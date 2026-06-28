@@ -1,6 +1,6 @@
 import React from 'react';
-import Reveal from './Reveal'; // <-- Import the new wrapper!
-import TiltCard from '.Tiltcard.jsx' 
+import Reveal from './Reveal';
+import TiltCard from './TiltCard'; // <-- Fixed the import path!
 
 const eventData = [
   {
@@ -41,41 +41,42 @@ export default function Events() {
           </div>
         </Reveal>
 
-       {eventData.map((event, index) => (
-  <Reveal key={event.id} delay={index * 150}>
-    {/* We wrap the card in our new Tilt architecture */}
-    <TiltCard className="h-full">
-      <div 
-        className="group relative bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-yellow-400 hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] cursor-none h-full min-h-[300px]"
-      >
-        <div className="text-cyan-400 text-sm font-bold tracking-widest mb-4 group-hover:text-yellow-400 transition-colors duration-300">
-          {event.time}
-        </div>
-        
-        <h3 className="text-2xl font-bold text-white mb-3">
-          {event.title}
-        </h3>
-        
-        <p className="text-gray-400 mb-12 leading-relaxed">
-          {event.description}
-        </p>
-        
-        <div className="flex flex-wrap gap-2 absolute bottom-8 left-8">
-          {event.tags.map((tag, tagIndex) => (
-            <span 
-              key={tagIndex} 
-              className="px-3 py-1 text-xs font-semibold rounded-full bg-cyan-900/40 text-cyan-300 border border-cyan-800/50 group-hover:bg-yellow-900/40 group-hover:text-yellow-300 group-hover:border-yellow-800/50 transition-colors duration-300"
-            >
-              {tag}
-            </span>
+        {/* <-- I put the missing grid wrapper back here! --> */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {eventData.map((event, index) => (
+            <Reveal key={event.id} delay={index * 150}>
+              <TiltCard className="h-full">
+                <div 
+                  className="group relative bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-yellow-400 hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] cursor-none h-full min-h-[300px]"
+                >
+                  <div className="text-cyan-400 text-sm font-bold tracking-widest mb-4 group-hover:text-yellow-400 transition-colors duration-300">
+                    {event.time}
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-white mb-3">
+                    {event.title}
+                  </h3>
+                  
+                  <p className="text-gray-400 mb-12 leading-relaxed">
+                    {event.description}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2 absolute bottom-8 left-8">
+                    {event.tags.map((tag, tagIndex) => (
+                      <span 
+                        key={tagIndex} 
+                        className="px-3 py-1 text-xs font-semibold rounded-full bg-cyan-900/40 text-cyan-300 border border-cyan-800/50 group-hover:bg-yellow-900/40 group-hover:text-yellow-300 group-hover:border-yellow-800/50 transition-colors duration-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </TiltCard>
+            </Reveal>
           ))}
         </div>
-      </div>
-    </TiltCard>
-  </Reveal>
-))}
-          ))}
-        </div>
+
       </div>
     </section>
   );
