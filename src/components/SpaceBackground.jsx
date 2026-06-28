@@ -3,64 +3,91 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 export default function SpaceBackground() {
   const backgroundRef = useRef(null);
   
-  // State to track scroll position (for parallax) and scroll speed (for the warp stretch)
+  // Existing state
   const [scrollY, setScrollY] = useState(0);
   const [warpSpeed, setWarpSpeed] = useState(0);
   const lastScrollY = useRef(0);
+
+  // --- NEW: Hyper-Warp State ---
+  const [isWarping, setIsWarping] = useState(false);
+  const [warpOrigin, setWarpOrigin] = useState({ x: '50%', y: '50%' });
 
   useEffect(() => {
     let scrollTimeout;
 
     const handleScroll = () => {
+      if (isWarping) return; // Disable scroll effects during warp
       const currentScrollY = window.scrollY;
       setScrollY(currentScrollY);
       
-      // Calculate how fast the user is scrolling to stretch the stars
       const speed = Math.abs(currentScrollY - lastScrollY.current);
-      setWarpSpeed(Math.min(speed * 2, 100)); // Cap the maximum stretch
+      setWarpSpeed(Math.min(speed * 2, 100));
       lastScrollY.current = currentScrollY;
 
-      // Snap back to normal stars when scrolling stops
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => setWarpSpeed(0), 100);
     };
 
     const handleMouseMove = (e) => {
-      if (!backgroundRef.current) return;
-      // Calculate mouse position relative to the center of the screen (-1 to 1)
+      if (!backgroundRef.current || isWarping) return;
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
       
-      // We use CSS variables to move the stars so we don't lag React's render engine
       backgroundRef.current.style.setProperty('--mouse-x', `${x}`);
       backgroundRef.current.style.setProperty('--mouse-y', `${y}`);
     };
 
-    // Listeners for mouse and scroll
+    // --- NEW: The Warp Event Listener ---
+    const handleWarpTrigger = (e) => {
+      const { clientX, clientY } = e.detail;
+      
+      // Convert click coordinates to percentages for transform-origin
+      const xPercent = (clientX / window.innerWidth) * 100;
+      const yPercent = (clientY / window.innerHeight) * 100;
+      
+      setWarpOrigin({ x: `${xPercent}%`, y: `${yPercent}%` });
+      setIsWarping(true);
+
+      // Reset the warp after the animation completes (match your transition duration)
+      // The new page content should mount during this window.
+      setTimeout(() => {
+        setIsWarping(false);
+      }, 700); 
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('trigger-warp', handleWarpTrigger);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('trigger-warp', handleWarpTrigger);
       clearTimeout(scrollTimeout);
     };
-  }, []);
+  }, [isWarping]);
 
-  // Helper function to randomly generate hundreds of stars using a single CSS box-shadow
   const generateStars = (count, color) => {
     let shadow = '';
     for (let i = 0; i < count; i++) {
-      // We generate them across 300vh so you don't run out of stars when scrolling down!
       shadow += `${Math.floor(Math.random() * 100)}vw ${Math.floor(Math.random() * 300)}vh ${color}, `;
     }
     return shadow.slice(0, -2);
   };
 
-  // useMemo ensures we only calculate these random positions once when the site loads
-  const starsSmall = useMemo(() => generateStars(400, 'rgba(255, 255, 255, 0.4)'), []); // Distant white stars
-  const starsMedium = useMemo(() => generateStars(200, 'rgba(34, 211, 238, 0.6)'), []); // Mid-ground cyan stars
-  const starsLarge = useMemo(() => generateStars(75, 'rgba(255, 215, 0, 0.8)'), []);    // Foreground gold stars
+  const starsSmall = useMemo(() => generateStars(400, 'rgba(255, 255, 255, 0.4)'), []);
+  const starsMedium = useMemo(() => generateStars(200, 'rgba(34, 211, 238, 0.6)'), []);
+  const starsLarge = useMemo(() => generateStars(75, 'rgba(255, 215, 0, 0.8)'), []);
+
+  // Calculate dynamic transform values based on whether we are warping or not
+  const getTransform = (depthMultiplier, baseScale = 1, warpScaleMultiplier = 1) => {
+    if (isWarping) {
+      // Dive into the screen! Ignore mouse/scroll, just scale up massively.
+      return `scale(${baseScale * warpScaleMultiplier})`;
+    }
+    // Normal parallax state
+    return `translate(calc(var(--mouse-x) * -${depthMultiplier * 10}px), calc(var(--mouse-y) * -${depthMultiplier * 10}px)) translateY(-${scrollY * (depthMultiplier * 0.1)}px) scale(${baseScale})`;
+  };
 
   return (
     <div 
@@ -70,43 +97,55 @@ export default function SpaceBackground() {
     >
       {/* 1. The Deep Nebula Glow */}
       <div 
-        className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black transition-transform duration-500 ease-out mix-blend-screen"
-        style={{ transform: 'translate(calc(var(--mouse-x) * -20px), calc(var(--mouse-y) * -20px)) scale(1.1)' }}
+        className={`absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black transition-all ease-in-out mix-blend-screen ${isWarping ? 'duration-[700ms] opacity-0' : 'duration-500 opacity-100'}`}
+        style={{ 
+          transform: getTransform(2, 1.1, 3),
+          transformOrigin: `${warpOrigin.x} ${warpOrigin.y}`
+        }}
       />
 
-      {/* 2. Layer 1: Distant Stars (Slow scroll parallax, no warp stretch) */}
+      {/* 2. Layer 1: Distant Stars */}
       <div 
-        className="absolute top-0 left-0 w-full h-[300vh] transition-transform duration-300 ease-out"
-        style={{ transform: `translate(calc(var(--mouse-x) * -10px), calc(var(--mouse-y) * -10px)) translateY(-${scrollY * 0.1}px)` }}
+        className={`absolute top-0 left-0 w-full h-[300vh] transition-all ease-in ${isWarping ? 'duration-[600ms] blur-[1px]' : 'duration-300 ease-out blur-none'}`}
+        style={{ 
+          transform: getTransform(1, 1, 8), // Scales 8x on click
+          transformOrigin: `${warpOrigin.x} ${warpOrigin.y}`
+        }}
       >
         <div className="w-[1px] h-[1px] rounded-full bg-transparent" style={{ boxShadow: starsSmall }} />
       </div>
 
-      {/* 3. Layer 2: Mid-Ground Stars (Medium scroll parallax, slight warp stretch) */}
+      {/* 3. Layer 2: Mid-Ground Stars */}
       <div 
-        className="absolute top-0 left-0 w-full h-[300vh] transition-transform duration-200 ease-out"
-        style={{ transform: `translate(calc(var(--mouse-x) * -25px), calc(var(--mouse-y) * -25px)) translateY(-${scrollY * 0.3}px)` }}
+        className={`absolute top-0 left-0 w-full h-[300vh] transition-all ease-in ${isWarping ? 'duration-[500ms] blur-[2px]' : 'duration-200 ease-out blur-none'}`}
+        style={{ 
+          transform: getTransform(2.5, 1, 12), // Scales 12x on click (moves past you faster)
+          transformOrigin: `${warpOrigin.x} ${warpOrigin.y}`
+        }}
       >
         <div 
           className="w-[2px] rounded-full bg-transparent transition-all duration-150" 
           style={{ 
             boxShadow: starsMedium,
-            height: `${2 + warpSpeed * 0.15}px` // Stretches slightly on scroll
+            height: isWarping ? '20px' : `${2 + warpSpeed * 0.15}px` // Artificial stretch during warp
           }} 
         />
       </div>
 
-      {/* 4. Layer 3: Foreground Stars (Fast scroll parallax, heavy cinematic warp stretch) */}
+      {/* 4. Layer 3: Foreground Stars */}
       <div 
-        className="absolute top-0 left-0 w-full h-[300vh] transition-transform duration-100 ease-out"
-        style={{ transform: `translate(calc(var(--mouse-x) * -50px), calc(var(--mouse-y) * -50px)) translateY(-${scrollY * 0.6}px)` }}
+        className={`absolute top-0 left-0 w-full h-[300vh] transition-all ease-in ${isWarping ? 'duration-[400ms] blur-[3px] opacity-0' : 'duration-100 ease-out opacity-100'}`}
+        style={{ 
+          transform: getTransform(5, 1, 18), // Scales 18x on click (flies past camera instantly)
+          transformOrigin: `${warpOrigin.x} ${warpOrigin.y}`
+        }}
       >
         <div 
           className="w-[3px] rounded-full bg-transparent transition-all duration-75" 
           style={{ 
             boxShadow: starsLarge,
-            height: `${3 + warpSpeed * 0.5}px`, // Stretches dramatically on scroll
-            opacity: warpSpeed > 10 ? 0.6 : 1 // Blurs out slightly when hitting warp speed
+            height: isWarping ? '40px' : `${3 + warpSpeed * 0.5}px`, 
+            opacity: (warpSpeed > 10 && !isWarping) ? 0.6 : 1 
           }} 
         />
       </div>
