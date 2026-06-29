@@ -34,22 +34,21 @@ const DATABASE = {
   tactical: {
     name: "TACTICAL CLUSTER",
     color: "cyan",
-    // Topology: The Linear Breach (Strict Top/Bottom Labels)
     events: [
-      { id: 't1', title: "ZERO-DAY SIEGE", date: "Oct 4", desc: "Penetrate the mainframe and defend your nodes in a relentless 24-hour Capture The Flag cyber warfare event.", type: 'quantumWorld', size: 'w-48 h-48',
-        x: 15, y: 50, labelPos: 'bottom' // Entry Node
+      { id: 't1', title: "ZERO-DAY SIEGE", date: "Oct 4", desc: "Penetrate the mainframe and defend your nodes in a relentless 24-hour Capture The Flag cyber warfare event.", 
+        type: 'zeroDaySiege', size: 'w-48 h-48', x: 15, y: 50, labelPos: 'bottom' 
       },
-      { id: 't2', title: "ALGORITHM ARENA", date: "Oct 5", desc: "A fast-paced algorithmic survival challenge. Optimize your logic and minimize time complexity before the server drops you.", type: 'iceMoon', size: 'w-36 h-36',
-        x: 35, y: 25, labelPos: 'top' // High Orbit
+      { id: 't2', title: "ALGORITHM ARENA", date: "Oct 5", desc: "A fast-paced algorithmic survival challenge. Optimize your logic and minimize time complexity before the server drops you.", 
+        type: 'algorithmArena', size: 'w-36 h-36', x: 35, y: 25, labelPos: 'top' 
       },
-      { id: 't3', title: "ANALYST'S CRUCIBLE", date: "Oct 5", desc: "Extract actionable metrics from a massive, corrupted database and present the hidden narrative to the judges.", type: 'crystalWorld', size: 'w-40 h-40',
-        x: 55, y: 75, labelPos: 'bottom' // Low Orbit
+      { id: 't3', title: "ANALYST'S CRUCIBLE", date: "Oct 5", desc: "Extract actionable metrics from a massive, corrupted database and present the hidden narrative to the judges.", 
+        type: 'analystsCrucible', size: 'w-40 h-40', x: 55, y: 75, labelPos: 'bottom' 
       },
-      { id: 't4', title: "PRODUCT VANGUARD", date: "Oct 6", desc: "Tear down a failing digital product. Analyze user friction, define new requirements, and architect a winning roadmap.", type: 'plasmaPlanet', size: 'w-40 h-40',
-        x: 75, y: 35, labelPos: 'top' // High Orbit
+      { id: 't4', title: "PRODUCT VANGUARD", date: "Oct 6", desc: "Tear down a failing digital product. Analyze user friction, define new requirements, and architect a winning roadmap.", 
+        type: 'productVanguard', size: 'w-40 h-40', x: 75, y: 35, labelPos: 'top' 
       },
-      { id: 't5', title: "NEURAL CLASH", date: "Oct 7", desc: "Train an AI agent to navigate a simulated ecosystem. Deploy your model into the grid and watch it fight for supremacy.", type: 'voidPlanet', size: 'w-36 h-36',
-        x: 90, y: 60, labelPos: 'bottom' // Deep Core
+      { id: 't5', title: "NEURAL CLASH", date: "Oct 7", desc: "Train an AI agent to navigate a simulated ecosystem. Deploy your model into the grid and watch it fight for supremacy.", 
+        type: 'neuralClash', size: 'w-36 h-36', x: 90, y: 60, labelPos: 'bottom' 
       }
     ]
   },
@@ -78,12 +77,28 @@ const DATABASE = {
   zenith: {
     name: "ZENITH CITADEL",
     color: "gold",
+    // Topology: The Asymmetric Void (Chaotic, expansive, monumentally scaled)
     events: [
-      { id: 'z1', title: "THE ZENITH ADDRESS", date: "Oct 20", desc: "The monumental closing keynote of IGNITO. Join pioneers as they map out the next decade of technological evolution.", type: 'stellarCore', x: 50, y: 50, size: 'w-64 h-64', labelPos: 'bottom' },
-      { id: 'z2', title: "THE PRODUCT HORIZON", date: "Oct 19", desc: "A visionary summit on transitioning into high-impact product management roles, leveraging artificial intelligence, and defining the roadmap for next-gen digital experiences.", type: 'crystalWorld', x: 20, y: 30, size: 'w-40 h-40', labelPos: 'bottom' },
-      { id: 'z3', title: "DATA & DESTINY", date: "Oct 19", desc: "Industry leaders discuss the evolving role of the analyst. Learn how to parse massive datasets to drive global architectural decisions.", type: 'oceanWorld', x: 85, y: 20, size: 'w-36 h-36', labelPos: 'bottom' },
-      { id: 'z4', title: "ARCHITECTS OF TOMORROW", date: "Oct 20", desc: "A fireside chat with startup founders who scaled their platforms from a dorm room to global dominance.", type: 'plasmaPlanet', x: 30, y: 80, size: 'w-40 h-40', labelPos: 'bottom' },
-      { id: 'z5', title: "ECHOES OF INNOVATION", date: "Oct 20", desc: "An ethereal audio-visual experience celebrating the achievements, builds, and survival stories of this year's participants.", type: 'nebulaWorld', x: 75, y: 85, size: 'w-48 h-48', labelPos: 'bottom' }
+      { id: 'z1', title: "THE ZENITH ADDRESS", date: "Oct 20", desc: "The monumental closing keynote of IGNITO. Join pioneers as they map out the next decade of technological evolution.", 
+        type: 'zenithAddress', size: 'w-64 h-64',
+        x: 50, y: 50, labelPos: 'bottom' // Flagship: Dead Center
+      },
+      { id: 'z2', title: "THE PRODUCT HORIZON", date: "Oct 19", desc: "A visionary summit on transitioning into high-impact product management roles, leveraging artificial intelligence, and defining the roadmap for next-gen digital experiences.", 
+        type: 'productHorizon', size: 'w-40 h-40',
+        x: 20, y: 30, labelPos: 'top' // Pushed out top-left
+      },
+      { id: 'z3', title: "DATA & DESTINY", date: "Oct 19", desc: "Industry leaders discuss the evolving role of the analyst. Learn how to parse massive datasets to drive global architectural decisions.", 
+        type: 'dataDestiny', size: 'w-36 h-36',
+        x: 85, y: 20, labelPos: 'top' // Flung way out to the far top-right corner
+      },
+      { id: 'z4', title: "ARCHITECTS OF TOMORROW", date: "Oct 20", desc: "A fireside chat with startup founders who scaled their platforms from a dorm room to global dominance.", 
+        type: 'architectsTomorrow', size: 'w-40 h-40',
+        x: 30, y: 80, labelPos: 'bottom' // Pulled uncomfortably close to the bottom-left
+      },
+      { id: 'z5', title: "ECHOES OF INNOVATION", date: "Oct 20", desc: "An ethereal audio-visual experience celebrating the achievements, builds, and survival stories of this year's participants.", 
+        type: 'echoesInnovation', size: 'w-48 h-48',
+        x: 75, y: 85, labelPos: 'bottom' // Counter-balance on the bottom-right
+      }
     ]
   }
 };
