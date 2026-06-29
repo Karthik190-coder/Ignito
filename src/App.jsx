@@ -22,17 +22,26 @@ export default function App() {
   const initiateWarp = (sectorId) => {
     lastSectorRef.current = sectorId;
     
-    // Smoothly pan the camera to the staging area WHILE the exit animation plays
-    // This perfectly masks the height collapse of the Universe map unmounting.
+    // Smoothly pan the camera to the staging area WHILE the entry animation plays
     eventsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     
     setActiveSector(sectorId);
   };
 
   const abortWarp = () => {
-    // We strictly wipe the state here. 
-    // The camera pan is handled securely by onAnimationComplete below.
+    // 1. Capture the ID of the galaxy we are currently in BEFORE we close it
+    const targetId = `galaxy-${lastSectorRef.current}`;
+    
+    // 2. Trigger the exit animation
     setActiveSector(null); 
+    
+    // 3. Wait exactly 850ms (0.8s for the exit animation + 50ms buffer) for the DOM to settle, then pan the camera
+    setTimeout(() => {
+      const targetGalaxy = document.getElementById(targetId);
+      if (targetGalaxy) {
+        targetGalaxy.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 850); 
   };
 
   return (
@@ -72,14 +81,6 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 1.5 }} 
               transition={{ duration: 0.8, ease: "easeInOut" }}
-              onAnimationComplete={(definition) => {
-                // When the Universe is fully mounted and stable, 
-                // pan the camera directly to the galaxy you just came from.
-                if (definition === "animate" && lastSectorRef.current) {
-                  const targetGalaxy = document.getElementById(`galaxy-${lastSectorRef.current}`);
-                  targetGalaxy?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-              }}
             >
               <div className="text-center mb-12 pointer-events-none">
                 <h3 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 tracking-widest">
@@ -101,13 +102,6 @@ export default function App() {
               animate={{ opacity: 1, scale: 1 }} 
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              onAnimationComplete={(definition) => {
-                // Ensure the camera is perfectly locked to the top of the map 
-                // once the planetary system physically finishes rendering.
-                if (definition === "animate") {
-                  eventsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }}
             >
               <SystemMap sectorId={activeSector} onBack={abortWarp} />
             </motion.div>
